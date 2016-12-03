@@ -80,7 +80,7 @@ static void *smallFreeList = NULL;//for free blocks less than or equal to 2048 b
 //static void *medFreeList;//for free blocks >=2049 or <=4096
 //static void *bigFreeList;//for free blocks greater than or equal to 4079 bytes  
 
-static int alloc_count=0;/*counts the number of allocated blocks in the heap*/
+//static int alloc_count=0;/*counts the number of allocated blocks in the heap*/
 //int reallocNum = 0;
 /*******HEAP CHECKER*******/
 int mm_check(void *bp)
@@ -101,7 +101,7 @@ int mm_check(void *bp)
 
   if(!GET_ALLOC(bp))//check if an allocated block has allocated bit set after malloc
     printf("current block does not have allocate bit set\n");
-  return alloc_count;
+  return 0;// alloc_count;
 }
 
 /***********HELPER FUNCTIONS***************/
@@ -119,12 +119,14 @@ static void *coalesce(void *bp)
     size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
     PUT(HDRP(bp),PACK(size,0));
     PUT(FTRP(bp),PACK(size,0));
+    return bp;
   }
   else if(!prev_alloc && next_alloc){/*case 3: prev free, next allocated*/
     size += GET_SIZE(HDRP(PREV_BLKP(bp)));
     PUT(FTRP(bp),PACK(size,0));
     PUT(HDRP(PREV_BLKP(bp)),PACK(size,0));
     bp = PREV_BLKP(bp);
+    return bp;
   }
   else{                              /*case 4:prev and next are free*/
     size += GET_SIZE(HDRP(PREV_BLKP(bp)))+ GET_SIZE(FTRP(NEXT_BLKP(bp)));
@@ -170,7 +172,7 @@ static void *find_fit(size_t asize)
 }
 
 static void place(void *bp, size_t asize){
-  alloc_count++;
+  //alloc_count++;
   size_t csize = GET_SIZE(HDRP(bp));
 
   if ((csize - asize) >= (2*DSIZE)){
